@@ -1,80 +1,45 @@
-use std::io::{self, BufRead};
+use std::env;
+use std::fs::File;
+use std::io::{self, BufRead, Write};
 
-/*
- * Complete the 'countApplesAndOranges' function below.
- *
- * The function accepts following parameters:
- *  1. INTEGER s
- *  2. INTEGER t
- *  3. INTEGER a
- *  4. INTEGER b
- *  5. INTEGER_ARRAY apples
- *  6. INTEGER_ARRAY oranges
- */
-
-fn countApplesAndOranges(s: i32, t: i32, a: i32, b: i32, apples: &[i32], oranges: &[i32]) {
-    let mut apple_count = 0;
-    let mut orange_count = 0;
-
-    // Count apples that fall on the house
-    for &apple in apples {
-        let position = a + apple;
-        if position >= s && position <= t {
-            apple_count += 1;
+fn gradingStudents(grades: &[i32]) -> Vec<i32> {
+    grades.iter().map(|&grade| {
+        if grade < 38 {
+            grade
+        } else {
+            let next_multiple_of_5 = ((grade / 5) + 1) * 5;
+            if next_multiple_of_5 - grade < 3 {
+                next_multiple_of_5
+            } else {
+                grade
+            }
         }
-    }
-
-    // Count oranges that fall on the house
-    for &orange in oranges {
-        let position = b + orange;
-        if position >= s && position <= t {
-            orange_count += 1;
-        }
-    }
-
-    println!("{}", apple_count);
-    println!("{}", orange_count);
+    }).collect()
 }
 
 fn main() {
     let stdin = io::stdin();
     let mut stdin_iterator = stdin.lock().lines();
 
-    let first_multiple_input: Vec<String> = stdin_iterator.next().unwrap().unwrap()
-        .split(' ')
-        .map(|s| s.to_string())
-        .collect();
+    let mut fptr = File::create(env::var("OUTPUT_PATH").unwrap()).unwrap();
 
-    let s = first_multiple_input[0].trim().parse::<i32>().unwrap();
-    let t = first_multiple_input[1].trim().parse::<i32>().unwrap();
+    let grades_count = stdin_iterator.next().unwrap().unwrap().trim().parse::<i32>().unwrap();
 
-    let second_multiple_input: Vec<String> = stdin_iterator.next().unwrap().unwrap()
-        .split(' ')
-        .map(|s| s.to_string())
-        .collect();
+    let mut grades: Vec<i32> = Vec::with_capacity(grades_count as usize);
 
-    let a = second_multiple_input[0].trim().parse::<i32>().unwrap();
-    let b = second_multiple_input[1].trim().parse::<i32>().unwrap();
+    for _ in 0..grades_count {
+        let grades_item = stdin_iterator.next().unwrap().unwrap().trim().parse::<i32>().unwrap();
+        grades.push(grades_item);
+    }
 
-    let third_multiple_input: Vec<String> = stdin_iterator.next().unwrap().unwrap()
-        .split(' ')
-        .map(|s| s.to_string())
-        .collect();
+    let result = gradingStudents(&grades);
 
-    let _m = third_multiple_input[0].trim().parse::<i32>().unwrap();
-    let _n = third_multiple_input[1].trim().parse::<i32>().unwrap();
+    for i in 0..result.len() {
+        write!(&mut fptr, "{}", result[i]).ok();
+        if i != result.len() - 1 {
+            writeln!(&mut fptr).ok();
+        }
+    }
 
-    let apples: Vec<i32> = stdin_iterator.next().unwrap().unwrap()
-        .trim_end()
-        .split(' ')
-        .map(|s| s.to_string().parse::<i32>().unwrap())
-        .collect();
-
-    let oranges: Vec<i32> = stdin_iterator.next().unwrap().unwrap()
-        .trim_end()
-        .split(' ')
-        .map(|s| s.to_string().parse::<i32>().unwrap())
-        .collect();
-
-    countApplesAndOranges(s, t, a, b, &apples, &oranges);
+    writeln!(&mut fptr).ok();
 }

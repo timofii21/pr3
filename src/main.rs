@@ -7,6 +7,7 @@ mod task6;
 mod task7;
 mod task8;
 mod task9;
+mod task11;
 mod task10;
 
 fn main() {
